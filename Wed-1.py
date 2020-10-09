@@ -5,10 +5,11 @@ Created on Wed Oct  7 14:37:40 2020
 @author: johna
 """
 # MECE 6397, SciComp, Problem 4, Computational
-#Solve the helmholts equation for 1. Dirchlet. 2. Nuemann
+#Solve the helmholtzs equation for 1. Dirchlet. 2. Nuemann
 
 #imports
 import numpy as np
+
 #import math
 import matplotlib.pyplot as plt
 from math import sinh as sinh
@@ -17,6 +18,7 @@ from random import randint as randi
 #Contstants given in problem statement, constant for both boundary conditions.
 #Interval length, u(x=0), v is constant on hyperbolic sin function, A is exact solution of f(x).
 # solve both problem for both values of k
+
 L = 1
 U_o = 1
 v = 1
@@ -24,12 +26,9 @@ A = 1
 K = [1, 10]
 
 #The N value, this is gonna change
-N=13
+#N must be greater than 2
+N=17
 
-#The code analyis is gonna hate these function names I bet
-#Thomas Algorithm Function, note im not making a general thomas algorithm function,
-#just one for this homework assignments
-#the a b c and f would be lists, cause they will not always be the same for every tri-di Matrix
 #helmotlz dirchlet part 1 problem
 
 #discretize the interval function     
@@ -39,12 +38,12 @@ def DIF(L,N):
     x = np.linspace(0, L, N+2)
     return(x[:],h)
 
-#okay im gonna change this to be a Helmhotz TAF, with lamda.
+#Helmholtz Thomas Algorith Function    
 #I still need that A as an input for this problem 
-def HTAF(N,h,lamda,U_o,A):
-#inputs are N, the tridiagonal elements, the RHS, and U_o=u(x=0).
-#create lists ahead of time
-    #Pre Thomas algorith set up. for this problem these values are all constant
+def HTAF(N,h,lamda,U_o,A):   
+#inputs are N, lamda, U_o=u(x=0), and for this problem A.
+#Pre Thomas algorith set up. for this problem these values are all constant
+# Note these values are now inside the function
     a =-(2-lamda*h**2)
     b = 1
     c = 1
@@ -66,95 +65,69 @@ def HTAF(N,h,lamda,U_o,A):
         u_appx[-1-m] = (g[-1-m]-c*u_appx[-m])/alpha[-1-m]
     return(u_appx)
 
-#u exact function, for the helmotlz dirchlet part 1 problem
+#u exact function, for the helmhotlz dirchlet part 1 problem
 def uEF(k,L,x,A,U_o):
     u_exact = [((sinh(k*(L-x))+sinh(k*x))/sinh(k*L)-1)*A/k**2+
 U_o*sinh(k*(L-x))/sinh(k*L) for x in x[1:-1]]
     return(u_exact)
- 
-x,h=DIF(L,N)    
 
+#Note:Functions are now defined. Moving along
+
+ 
+#Calling the Discr. the Interval right here for now     
+x,h=DIF(L,N)   
+ 
 #im gonna need this eventually    
 #lenK=len(K)
 #for n in range(lenK)
 #    k = K[n]
+
 #just gonna start with k=1 for now
 k = K[0]
-#lamda in the helmoltz eq defined here
+
+#Note: lamda in the helmholtz eq defined here
 lamda=-k**2
 
 #Part 1, Dirchlet
 
-#grid convergence
+#Grid Convergence
 #im using the flag so I dont have to call the function before and inside the while statement
-#there is probably a better way to do this
-#am i wasting memory using the flag? probably but its just one number
 Flag = 0
 m=1
-#I need a variable name or something for this. I cant think of anything right now,
-#closeness? diff, naw thats confusing, with differentiation. close enough
-#wahtever 
+#Lebron is a placeholder variable name
 Lebron=1*10**-3
-#this is the point we will check. and what the hell if that ones good we will check another.  
-check_val=randi(1,N-2)
+#Checking a random discretized point, not every value.
+check_val=randi(0,N)
+
 while Flag == 0:
 #calling all my functions
-    print(m)
     print(N)
     x, h = DIF(L,N)  
     u_appx=HTAF(N,h,lamda,U_o,A)
     u_appx_next = HTAF(2*N,h/2,lamda,U_o,A)
     if abs(u_appx[check_val]-u_appx_next[2*check_val])<Lebron:
-        print('checked once')
-        check_val=randi(2,N-3)#I brought the interval in here just a little
-        if abs(u_appx[check_val]-u_appx_next[2*check_val])<Lebron:
-            print('checked twice')
         Flag = 1
         print('%s Grid Points Needed' %(N))
         print('Doubling the Grid Points would result in less then %s differece between u values for the same Grid Point' %(Lebron))
     else:
         N=N+N
-        m=m+1
-#here is the exact value function call
+
+#I think this is now actually doing the job pretty good. If N is large enough it will return the original N value.
+#I still think that Flag variable is gonna be inefficeint. 
+#Still for not perfect tho. for example consider Lebron=1*10**-3 and N=767 N=768, N=769, produce very different results.
+#so its kinda sensitive near key points
+#just move on.        
+
+       
+#Note: here is the exact value function call
 u_exact = uEF(k, L, x, A, U_o)     
 
+#Next....Checking relative error, graphs and tables, then on to part two, 
 
-
-#ok yes that was indeed "A" problem, but now the number of gridpoints is getting insane.
-#lets use that "close enough"        
-#ok good now the number of grid points needed depends on how accurate I want the numbers
-#AND I really should probably be checking more than one number because im getting different results        
-#im getting different values depending on which element I check.
-#I really dont wanna check the whole list.
-#hmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-# lets think about this?...?...?...?
-#10 thousand grid points seems ok to me.
-#but 100 thousand  seems insane.       
-#okay do the earlier values need more than the middle? the middle more than the end.....?
-#hmmmmmmmmmm        
-#ok but hold up im not even checking the value for the same point here
-#whatever I do I gotta be checking the same physical point and comparing the value.
-#ah I see this now, very nice. I need to check u_appx[y]-u_appx_next[2*y])
-#that was probably pretty simple
-#oh well I figured it out pretty quick.       
-## 
-#im just gonna check a random value 
-#       
-#ok damn that still aint working quite right. something still isnt right
-#ok I gotta divde the h by 2 as well, or call the DIF again. Yep.
-#now the number of points needed is related to the differnce between the values needed/required/wanted/whatever
-#1*10^-3----> appx 1000 grid points 1*10^-4 --->appx 10,000 grip points, 10^-5 appx 100,000 good, good   
-
+#im gonna keep these lines here.
 #the stuff below here is just for copying and pasting into the command line for troubleshooting    
-#N=100
-#x, h = DIF(L,N)        
-#        
-#u_appx=HTAF(N,h,lamda,U_o,A)
-#u_appx_next = HTAF(2*N,h/2,lamda,U_o,A)        
-#u_exact = uEF(k, L, x, A, U_o)  
-
-#call all functions,... CAF
-#def AF(N,lamda,U_o,A,k, L):
+#call all functions
+#def CAF(N,lamda,U_o,A,k, L):
 #    x, h = DIF(L,N) 
 #    u_appx=HTAF(N,h,lamda,U_o,A)
 #    u_appx_next = HTAF(2*N,h/2,lamda,U_o,A)        
@@ -165,9 +138,9 @@ u_exact = uEF(k, L, x, A, U_o)
 #    print('u appx_next=%s'%(u_appx_next[2*check_in_AF]))
 #    print('u exact=%s'%(u_exact[check_in_AF]))
 #    return(x, h, u_appx, u_appx_next, u_exact)
-
+#    
 #N=196    
-#x, h, uno,dos,tres=AF(N,lamda,U_o,A,k, L) 
+#x, h, uno,dos,tres=CAF(N,lamda,U_o,A,k, L) 
 #u_appx[check_val], u_appx_next[2*check_val], u_exact[check_val]
-
-#This is Wednsday 4    
+    
+#This is wednesday 5
