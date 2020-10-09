@@ -4,30 +4,14 @@ Created on Wed Oct  7 14:37:40 2020
 
 @author: johna
 """
-
-#I used MATLAB last time so I will use python this time
-
 # MECE 6397, SciComp, Problem 4, Computational
 #Solve the helmholts equation for 1. Dirchlet. 2. Nuemann
-
-#lets try and do this efficiently. and with correct formatting python style
-#Note the Code Analyzer does NOT LIKE the lower case constant name or X_whatever,
-#but im just gonna plow ahead
-
 
 #imports
 import numpy as np
 #import math
 import matplotlib.pyplot as plt
-#import sympy as sym
-#import scipy
-#assigning shortcuts from imports
-#from random import randint as randi
 from math import sinh as sinh
-#import time
-#start_time=time.time()
-#print('Start')
-#print("--- %s seconds --" % (time.time()-start_time))
 
 #Contstants given in problem statement, constant for both boundary conditions.
 #Interval length, u(x=0), v is constant on hyperbolic sin function, A is exact solution of f(x).
@@ -38,71 +22,94 @@ v = 1
 A = 1
 K = [1, 10]
 
-#Discretizing the interval length.
-N = 10
-h = L/(N+1)
-x = np.linspace(0, L, N+2)
+#The N value, this is gonna change
+N=10
 
-#Part 1, Dirchlet
-#I will just start off with k=1
+#The code analyis is gonna hate these function names I bet
+#Thomas Algorithm Function, note im not making a general thomas algorithm function, 
+#just one for this homework assignments
+#the a b c and f would be lists, cause they will not always be the same for every tri-di Matrix
+#helmotlz dirchlet part 1 problem
+
+#discretize the interval function     
+def DIF(L,N):
+#Discretizing the interval length. This is the same for both problems
+    h = L/(N+1)
+    x = np.linspace(0, L, N+2)
+    return(x[:],h)
+
+def TAF(N,a,b,c,f,U_o):
+#inputs are N, the tridiagonal elements, the RHS, and U_o=u(x=0).
+#create lists ahead of time
+    alpha = [0]*N
+    g = [0]*N
+    u_appx = [0]*N
+#following the psuedo code
+#zeroth element of this list corresponds to the first subscript in thomas algorith
+    alpha[0] = a
+    g[0] = f-U_o
+    for j in range(1, N):
+        alpha[j] = a-(b/alpha[j-1])*c
+        g[j] = f-(b/alpha[j-1])*g[j-1]   
+    u_appx[N-1] = g[N-1]/alpha[N-1]
+    for m in range(1,N):
+        u_appx[-1-m] = (g[-1-m]-c*u_appx[-m])/alpha[-1-m]
+    return(u_appx)
+
+#u exact function, for the helmotlz dirchlet part 1 problem
+def uEF(k,L,x,A,U_o):
+    u_exact = [((sinh(k*(L-x))+sinh(k*x))/sinh(k*L)-1)*A/k**2+
+U_o*sinh(k*(L-x))/sinh(k*L) for x in x[1:-1]]
+    return(u_exact)
+ 
+x,h=DIF(L,N)    
+
+#im gonna need this eventually    
+#lenK=len(K)
+#for n in range(lenK)
+#    k = K[n]
+#just gonna start with k=1 for now
 k = K[0]
 
-#getting all u values, gonna do this all at once outide of any loop. 
-#This Includes the boundaries
-#u_exact = [((sinh(k*(L-x))+sinh(k*x))/sinh(k*L)-1)*A/k**2+U_o*sinh(k*(L-x))/sinh(k*L) for x in x]
-#This does not
-u_exact = [((sinh(k*(L-x))+sinh(k*x))/sinh(k*L)-1)*A/k**2+U_o*sinh(k*(L-x))/sinh(k*L)
-for x in x[1:-1]]
-
+#Part 1, Dirchlet
 #Pre Thomas algorith set up. for this problem these values are all constant
 a =-(2+k**2*h**2)
 b = 1
 c = 1
-#should I call this f a different varible? nah its ok
 f = A*h**2
 
-#should I use an array? nah,Im not actually gonna do any matrix stuff really
-#lists should be fine, I will still create them ahead of time
-alpha = [0]*N
-g = [0]*N
-u_appx = [0]*N
-#I hope thats not inefficient
-
-#Thomas algorith, folliwng the psuedo code
-#zeroth element of this list corresponds to the first subscript in thomas algorith 
-alpha[0] = a
-g[0] = f-U_o
-
-for j in range(1, N):
-    alpha[j] = a-(b/alpha[j-1])*c
-    g[j] = f-(b/alpha[j-1])*g[j-1]
-    
-u_appx[N-1] = g[N-1]/alpha[N-1]
-
-for m in range(1,N):
-    u_appx[-1-m] = (g[-1-m]-c*u_appx[-m])/alpha[-1-m]
-
-#all right I am in business,
-#small little mix up with the sign on the k and lamda term from the Helmhotz eq
-#I knew I wrote that algorithm correctly
-    
-#lets do the grid convergence and the error stuff next
-#will that have to be like in an outter loop?, the way im invisioning it is like an outter while loop
-#I also need to submitt graphs and compare values so maybe not a while loop
- 
-# I think I will plot now, then start while loop after the initial calulation, do it again for 2*N, and compare???
-# no then I will have the same lines of code just reapeated
-# maybe make some functions.
-#I gotta do k=10 as well
-#I dont care how many physical lines it is I just want it to be computer efficient.
-#If I made a thomas algoithm function I would want to feed in the a,b,c terms, cause what if they arent always the same?.
-#im so indecisve
-#plt.plot(x[1:-1],u_exact)
-#I think making a Thomas algorithm function is the way to go, maybe not though.
-#I should probably just make everything functions
-# maybe not I cant decide.
-# oh and we are supposed to use git.
-#with functions I can easily change variables with out searching through the whole code
-#will be nice for touble shooting    
-    
-    
+#grid convergence
+#im using the flag so I dont have to call the function before and inside the while statement
+#there is probably a better way to do this
+#am i wasting memory using the flag? probably but its just one number
+Flag = 0
+m=1
+while Flag == 0:
+#calling all my functions
+    print(m)
+    print(N)
+    x, h = DIF(L,N)  
+    u_appx=TAF(N, a, b, c, f, U_o)
+    u_appx_next = TAF(2*N, a, b, c, f, U_o)
+#Im only checking one value
+#And I gotta have conditional statements somewhere     
+    if u_appx[3] == u_appx_next[3]:
+        Flag = 1
+        print('%s Grid Points Needed' %(N))
+    else:
+        N=N+N
+        m=m+1
+#this is gonna change depending on the initial N value. I should test it with some random numbers.        
+#ok yes this isnt quite doing what I need it do, or at least what I expect it too. The number of grid points goes up with starting N.
+#BUT! it seems to take 7 duplications to get what I need. Ill have to think about this
+#N=3---> doubling six times, N=234-----> 7 duplications. that cant be correct N----> 10000 the same.
+#hmmmmmm maybe this is why the HW is difficult.
+#N_needed=N_initial*2**7              
+#".....In this case you should compare the results for 2N and 4N 
+#and so forth until the results of two successive discretizations
+#are about the same..."  
+#about the same eh? 
+        
+##maybe something else is catastrophically wrong. yes that is why.
+     
+#This is Wednsday 2
