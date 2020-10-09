@@ -15,9 +15,10 @@ Created on Fri Oct  9 14:07:44 2020
 #imports
 import numpy as np
 
-#import math
-import matplotlib.pyplot as plt
+import math
+#import matplotlib.pyplot as plt
 from math import sinh as sinh
+from math import log as log
 from random import randint as randi
 
 #Contstants given in problem statement, constant for both boundary conditions.
@@ -103,19 +104,19 @@ m=1
 Lebron=1*10**-3
 #Checking a random discretized point, not every value.
 check_val=randi(0,N)
-
 while Flag == 0:
 #calling all my functions
     print(N)
     x, h = DIF(L,N)  
     u_appx=HTAF(N,h,lamda,U_o,A)
-    u_appx_next = HTAF(2*N,h/2,lamda,U_o,A)
+    u_appx_next = HTAF(2*N,L/(2*N+1),lamda,U_o,A)
     if abs(u_appx[check_val]-u_appx_next[2*check_val])<Lebron:
         Flag = 1
         print('%s Grid Points Needed' %(N))
         print('Doubling the Grid Points would result in less then %s differece between u values for the same Grid Point' %(Lebron))
     else:
         N=N+N
+
 
 #I think this is now actually doing the job pretty good. If N is large enough it will return the original N value.
 #I still think that Flag variable is gonna be inefficeint. 
@@ -125,9 +126,30 @@ while Flag == 0:
 
        
 #Note: here is the exact value function call
-u_exact = uEF(k, L, x, A, U_o)     
+u_exact = uEF(k, L, x, A, U_o)
+x1, h1 = DIF(L,N)   
+x2, h2 = DIF(L,2*N)
+u_exact_next = uEF(k, L, x2, A, U_o)     
 
 #Next....Checking relative error, graphs and tables, then on to part two, 
+
+#Ok relative error, sure function why not, nah I dont even need to store that. I just need that formal order equaition.
+# I will just make them 
+#formal order of accuracy.
+#log 2 error term
+#doing it like this so the computer doesnt have to calulate this value everytime.
+log2=log(2)
+#lets create the storage list ahead of time.fooa= formal order of accuracy... for now.
+fooa=[0]*N
+rel_err_1=[0]*N
+rel_err_2=[0]*N
+fooa3=[0]*N
+for k in range(N):
+    rel_err_1[k]=abs((u_appx[k]-u_exact[k])/u_exact[k])
+    rel_err_2[k]=abs((u_appx_next[2*k]-u_exact_next[2*k])/u_exact_next[2*k])
+    fooa[k]=(1/log2)*(log((abs((u_appx[k]-u_exact[k]))/u_exact[k]))
+-log((abs((u_appx_next[2*k]-u_exact[k]))/u_exact[k])))
+    fooa3[k]=log(rel_err_1[k]/rel_err_2[k])/log2
 
 #im gonna keep these lines here.
 #the stuff below here is just for copying and pasting into the command line for troubleshooting    
@@ -148,4 +170,23 @@ u_exact = uEF(k, L, x, A, U_o)
 #x, h, uno,dos,tres=CAF(N,lamda,U_o,A,k, L) 
 #u_appx[check_val], u_appx_next[2*check_val], u_exact[check_val]
     
-#This is wednesday 5
+#This is Now friday 1.
+    
+#it seems like doubling the gridpoints isnt getting my answer closer to th exact value
+#yeah I think something is actually wrong here with HTAF or the u_appx_next call
+# ahh i think it is the h/2 thing. that was actually wrong but im still not getting exactly what I was expecting
+
+#rel_error 2 should be smaller than rel_error 1
+#okay I kinda see it now. u_appx_next[0] is closer to U_o, then both u_appx, and u_exact. but it still isnt
+#u_appx[0]=u_appx[x= 0+1*h1]
+#and u_appx_next[0]=u_appx_next[x= 0+1*h2]
+# h2!=h1/2
+#so this is the same issue as the other day. Im not actually checking the same physical point. I thought i had solved this problem
+#in the grid. conv. study. but no it is still there.
+# lets just do this for now. call the DIF and make 2 seperate x lists and compare the values
+#ok so in the grid conv study I cant actually check the same physical point.
+#so I will need to call call the DIF again for 2*N to do the relative error part.
+#yeah that seems about right.    
+#and then that fooa will need to be changed because I will have lists of different lengths.
+# I can check elements close to one another, or maybe I should just take the average of the whole list.
+#this seems like a good time for a break. and to add to github.
