@@ -80,8 +80,6 @@ f = A*h**2
 
 #grid convergence
 #im using the flag so I dont have to call the function before and inside the while statement
-#there is probably a better way to do this
-#am i wasting memory using the flag? probably but its just one number
 Flag = 0
 m=1
 while Flag == 0:
@@ -93,23 +91,16 @@ while Flag == 0:
     u_appx_next = TAF(2*N, a, b, c, f, U_o)
 #Im only checking one value
 #And I gotta have conditional statements somewhere     
-    if u_appx[3] == u_appx_next[3]:
+    if u_appx[7] == u_appx_next[7]:
         Flag = 1
         print('%s Grid Points Needed' %(N))
     else:
         N=N+N
         m=m+1
-#this is gonna change depending on the initial N value. I should test it with some random numbers.        
-#ok yes this isnt quite doing what I need it do, or at least what I expect it too. The number of grid points goes up with starting N.
-#BUT! it seems to take 7 duplications to get what I need. Ill have to think about this
-#N=3---> doubling six times, N=234-----> 7 duplications. that cant be correct N----> 10000 the same.
-#hmmmmmm maybe this is why the HW is difficult.
-#N_needed=N_initial*2**7              
-#".....In this case you should compare the results for 2N and 4N 
-#and so forth until the results of two successive discretizations
-#are about the same..."  
-#about the same eh? 
         
-##maybe something else is catastrophically wrong. yes that is why.
-     
-#This is Wednsday 2
+##maybe something else is catastrophically wrong. yes that is why. ok I see it.
+# my a and f values are changing but im not redifining them with new N.
+#that stuff has gotta be in the function definition.
+#Ill make the git hub later.
+
+#This is Wednsday 3
