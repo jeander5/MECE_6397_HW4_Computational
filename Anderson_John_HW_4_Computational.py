@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Oct  9 14:07:44 2020
-
 @author: johna
 """
 #https://github.com/jeander5/MECE_6397_HW4_Computational
@@ -16,9 +15,9 @@ Created on Fri Oct  9 14:07:44 2020
 import numpy as np
 
 import math
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from math import sinh as sinh
-from math import log as log
+from math import log2 as log2
 from random import randint as randi
 
 #Contstants given in problem statement, constant for both boundary conditions.
@@ -33,20 +32,23 @@ K = [1, 10]
 
 #The N value, this is gonna change
 #N must be greater than 2
-N=17
+N = 17
+N_initial = N
 
 #helmotlz dirchlet part 1 problem
 
-#discretize the interval function     
-def DIF(L,N):
+#discretize the interval function  
+#im gonna go ahead and change so that x does NOT include the endpoints
+#this really doesnt need to be a function. I still llike having it tho   
+def DIF(L, N):
 #Discretizing the interval length. This is the same for both problems
     h = L/(N+1)
-    x = np.linspace(0, L, N+2)
+    x = np.linspace(h, L-h, N)
     return(x[:],h)
 
 #Helmholtz Thomas Algorith Function    
 #I still need that A as an input for this problem 
-def HTAF(N,h,lamda,U_o,A):   
+def HTAF(N, h, lamda, U_o, A):   
 #inputs are N, lamda, U_o=u(x=0), and for this problem A.
 #Pre Thomas algorith set up. for this problem these values are all constant
 # Note these values are now inside the function
@@ -72,16 +74,20 @@ def HTAF(N,h,lamda,U_o,A):
     return(u_appx)
 
 #u exact function, for the helmhotlz dirchlet part 1 problem
-def uEF(k,L,x,A,U_o):
+    
+#changing this beacuse I changed the DIF    
+def uEF(k, L, x, A, U_o):
     u_exact = [((sinh(k*(L-x))+sinh(k*x))/sinh(k*L)-1)*A/k**2+
-U_o*sinh(k*(L-x))/sinh(k*L) for x in x[1:-1]]
+U_o*sinh(k*(L-x))/sinh(k*L) for x in x]
     return(u_exact)
 
+#Note now with changes to the above len(x) == len(u_exact)
+#I think I should have just done this from the beginning
 #Note:Functions are now defined. Moving along
 
  
 #Calling the Discr. the Interval right here for now     
-x,h=DIF(L,N)   
+x,h = DIF(L,N)   
  
 #im gonna need this eventually    
 #lenK=len(K)
@@ -92,65 +98,123 @@ x,h=DIF(L,N)
 k = K[0]
 
 #Note: lamda in the helmholtz eq defined here
-lamda=-k**2
+lamda = -k**2
 
 #Part 1, Dirchlet
 
 #Grid Convergence
+
+#This section I think is where the main problem is.
+
+#"...If the results of the two calculations are different, it means
+#that N nodes are too few.
+#In this case you should compare the results for 2N and 4N and so forth until the
+#results of two successive discretizations are about the same;..."
+
+#maybe I should be checking the whole list idk
+
+#the issue here is for large N, max_err_2>max_err_1.
+#why is that the case. should that be the case? I definately dont think it should.
+#as N goes up h goes down. and h^2 can be much smaller than the difference value betwwen 
+#Is that really the issue? maybe
+#it also seems like checking values earlier in the list gives different values for fooa 
+#I should ceck the middle of the list probably,.
+#still, if max_err_2>max_err_1 i get a negative result from that log equation
+#maybe im just reaching the limits of the accuracy of the approximation, even with h getting smaller
+
 #im using the flag so I dont have to call the function before and inside the while statement
 Flag = 0
-m=1
 #Lebron is a placeholder variable name
-Lebron=1*10**-3
+Lebron = 1*10**-4
 #Checking a random discretized point, not every value.
-check_val=randi(0,N)
+#check_val = randi(1,N-2)
 while Flag == 0:
+    check_val = round(N/2)
 #calling all my functions
     print(N)
+    # i shouldnt have this function in the loop
+    #im calculating alot xs i dont use
     x, h = DIF(L,N)  
     u_appx=HTAF(N,h,lamda,U_o,A)
-    u_appx_next = HTAF(2*N,L/(2*N+1),lamda,U_o,A)
-    if abs(u_appx[check_val]-u_appx_next[2*check_val])<Lebron:
+    #I bet I should define these so they are not in the function call.
+    N2=2*N
+    h2=L/(N2+1)
+    u_appx_next = HTAF(N2,h2,lamda,U_o,A)
+    # I still need to be comparing u values for the closest x points.  
+    if abs(u_appx[check_val]-u_appx_next[2*check_val+1])<Lebron:
         Flag = 1
         print('%s Grid Points Needed' %(N))
-        print('Doubling the Grid Points would result in less then %s differece between u values for the same Grid Point' %(Lebron))
+        print('Doubling the Grid Points would result in less then %s differnce between u values for the closest Grid Point' %(Lebron))
     else:
-        N=N+N
+        N=N+N   
+print(check_val)
+        
 
-
-#I think this is now actually doing the job pretty good. If N is large enough it will return the original N value.
-#I still think that Flag variable is gonna be inefficeint. 
-#Still for not perfect tho. for example consider Lebron=1*10**-3 and N=767 N=768, N=769, produce very different results.
-#so its kinda sensitive near key points
-#just move on.        
-
-       
-#Note: here is the exact value function call
+#Note: here is the exact value function calls
+        
 u_exact = uEF(k, L, x, A, U_o)
-x1, h1 = DIF(L,N)   
-x2, h2 = DIF(L,2*N)
-u_exact_next = uEF(k, L, x2, A, U_o)     
+x2, h2= DIF(L, N2)
+u_exact_next = uEF(k, L, x2, A, U_o)   
 
-#Next....Checking relative error, graphs and tables, then on to part two, 
+#Next....Checking absolute error, graphs and tables, then on to part two,
+ 
+#To do that you have to calculate the maximum absolute errors
+#in N and 2N nodes using the analytical solution. Then use following formula to find the formal order of
+#accuracy.
+#So I actually just need max absolute error for both N and 2N
 
-#Ok relative error, sure function why not, nah I dont even need to store that. I just need that formal order equaition.
-# I will just make them 
 #formal order of accuracy.
-#log 2 error term
-#doing it like this so the computer doesnt have to calulate this value everytime.
-log2=log(2)
-#lets create the storage list ahead of time.fooa= formal order of accuracy... for now.
-fooa=[0]*N
-rel_err_1=[0]*N
-rel_err_2=[0]*N
-fooa3=[0]*N
-for k in range(N):
-    rel_err_1[k]=abs((u_appx[k]-u_exact[k])/u_exact[k])
-    rel_err_2[k]=abs((u_appx_next[2*k]-u_exact_next[2*k])/u_exact_next[2*k])
-    fooa[k]=(1/log2)*(log((abs((u_appx[k]-u_exact[k]))/u_exact[k]))
--log((abs((u_appx_next[2*k]-u_exact[k]))/u_exact[k])))
-    fooa3[k]=log(rel_err_1[k]/rel_err_2[k])/log2
+#lets create the storage list ahead of time.
+abs_err_1 = [0]*N
+abs_err_2 = [0]*N*2
+for j in range(N):
+    abs_err_1[j] = abs((u_appx[j]-u_exact[j]))
+for j in range(2*N):
+    abs_err_2[j] = abs((u_appx_next[j]-u_exact_next[j]))
+max_err_1 = max(abs_err_1)
+max_err_2 = max(abs_err_2)
 
+#or should I do something like this, all in one line. 
+#This kinds seems like I dont actually need to store the whole error
+#BIG G is just generic place holder name   
+G1 = max([abs((u_appx[j]-u_exact[j])) for j in range(N)]) 
+G2 = max([abs((u_appx_next[j]-u_exact_next[j])) for j in range(2*N)])  
+
+#OR should I check to see if the next element is greater than previous one 
+#and only keep two values at a time?
+#idk
+stored_val = (u_appx[0]-u_exact[0])
+for j in range(0,N):
+    next_val = u_appx[j]-u_exact[j]
+    if next_val>stored_val:
+        stored_val = next_val
+    
+stored_val2 = (u_appx[0]-u_exact[0])
+for j in range(0,N*2):
+    next_val2 = u_appx_next[j]-u_exact_next[j]
+    if next_val2>stored_val2:
+        stored_val2=next_val2   
+#all three should be the same number yep
+#stored_val==G1==max_err_1
+#stored_val2==G2==max_err_2
+# I will just keep all three I like the middle cause its all in one line 
+#but probably the 3rd  one is more computer efficient.
+#I could time it real quick. Later        
+#fooa= formal order of accuracy... for now.
+fooa = log2(max_err_1/max_err_2)
+print(fooa)
+
+#ok so this kinda is working, still if my Initial N is too big Im not getting consistently 2.
+#I think the grid convergence stuff still isnt right. Maybe I do need to be checking the whole list.
+#okay sometimes Im getting a negative value, which means max_err_2>max_err_1
+#which shouldnt be the case   
+# maybe i should use relative error
+#maybe i should actually shift the list so I am checking the same exact same x point for N and 2N somehow
+#I think that will mess up the results from the algorithm
+#i think im just stuck with checking closest valus
+
+
+#I really dont need this havent used
 #im gonna keep these lines here.
 #the stuff below here is just for copying and pasting into the command line for troubleshooting    
 #call all functions
@@ -159,34 +223,16 @@ for k in range(N):
 #    u_appx=HTAF(N,h,lamda,U_o,A)
 #    u_appx_next = HTAF(2*N,h/2,lamda,U_o,A)        
 #    u_exact = uEF(k, L, x, A, U_o)
+#    x2, h2 = DIF(L,2*N)
+#    u_exact_next = uEF(k, L, x2, A, U_o)     
 #    check_in_AF=randi(1,N-1)
 #    print('%s Grid Points %(N)')
 #    print('u appx=%s'%(u_appx[check_in_AF]))
-#    print('u appx_next=%s'%(u_appx_next[2*check_in_AF]))
+#    print('u appx_next=%s'%(u_appx_next[2*check_in_AF+1]))
 #    print('u exact=%s'%(u_exact[check_in_AF]))
-#    return(x, h, u_appx, u_appx_next, u_exact)
+#    return(x, h, u_appx, u_appx_next, u_exact, u-exact_next)
 #    
 #N=196    
-#x, h, uno,dos,tres=CAF(N,lamda,U_o,A,k, L) 
-#u_appx[check_val], u_appx_next[2*check_val], u_exact[check_val]
-    
-#This is Now friday 1.
-    
-#it seems like doubling the gridpoints isnt getting my answer closer to th exact value
-#yeah I think something is actually wrong here with HTAF or the u_appx_next call
-# ahh i think it is the h/2 thing. that was actually wrong but im still not getting exactly what I was expecting
-
-#rel_error 2 should be smaller than rel_error 1
-#okay I kinda see it now. u_appx_next[0] is closer to U_o, then both u_appx, and u_exact. but it still isnt
-#u_appx[0]=u_appx[x= 0+1*h1]
-#and u_appx_next[0]=u_appx_next[x= 0+1*h2]
-# h2!=h1/2
-#so this is the same issue as the other day. Im not actually checking the same physical point. I thought i had solved this problem
-#in the grid. conv. study. but no it is still there.
-# lets just do this for now. call the DIF and make 2 seperate x lists and compare the values
-#ok so in the grid conv study I cant actually check the same physical point.
-#so I will need to call call the DIF again for 2*N to do the relative error part.
-#yeah that seems about right.    
-#and then that fooa will need to be changed because I will have lists of different lengths.
-# I can check elements close to one another, or maybe I should just take the average of the whole list.
-#this seems like a good time for a break. and to add to github.
+#x, h, uno,dos,tres,quatro=CAF(N,lamda,U_o,A,k, L) 
+#u_appx[check_val], u_appx_next[2*check_val+1], u_exact[check_val], u_exact_next[check_val*2+1],    
+#This is Now Mon 1.
