@@ -13,13 +13,10 @@ Created on Fri Oct  9 14:07:44 2020
 
 #imports
 import numpy as np
-
-#import math
 import matplotlib.pyplot as plt
 from math import sinh as sinh
 from math import cosh as cosh
 from math import log2 as log2
-#from random import randint as randi
 
 #Contstants given in problem statement, constant for both boundary conditions.
 #Interval length, u(x=0) for Dirchlet, v is constant for the Neumann, A is exact solution of f(x).
@@ -31,27 +28,22 @@ v = 1
 A = 1
 K = [1, 10]
 
-#The N value, this is gonna change
+#The N value, this is inside the for loop
 #N must be greater than 2
 N = 10
 N_initial = N
 
-#helmotlz dirchlet part 1 problem
-
 #discretize the interval function  
-#this really doesnt need to be a function. I still llike having it tho   
+#this really doesnt need to be a function. I still like having it tho  
+#Discretizing the interval length. This is the same for both problems 
 def DIF(L, N):
-#Discretizing the interval length. This is the same for both problems
     h = L/(N+1)
     x = np.linspace(0, L, N+2)
     return(x[:],h)
-# changed this back to how I originally had it because for the Neuman problem I need to 
+#changed this back to how I originally had it because for the Neuman problem I need to 
 #approximate u(x=0)    
 
-#Helmholtz Thomas Algorith Function
-#do I wanna modify this slightly or make a whole new function for Nueman condition at x=0?
-#just make a new one for now, modify it later
-      
+#Helmholtz Thomas Algorith Function, for Dirchlet part 1
 def HTAF(N, h, lamda, U_o, A):   
 #inputs are N, lamda, U_o=u(x=0), and for this problem A.
 #Pre Thomas algorith set up. for this problem these values are all constant
@@ -77,7 +69,7 @@ def HTAF(N, h, lamda, U_o, A):
         u_appx[-1-m] = (g[-1-m]-c*u_appx[-m])/alpha[-1-m]
     return(u_appx)
     
-#for Neumann    
+#Helmholtz Thomas Algorith Function, for Neuman part 2
 def NHTAF(N, h, lamda, v, A):   
 #Pre Thomas algorith set up.
 #I now need to make N one point larger to incorporate the ghost node method for
@@ -124,20 +116,56 @@ def uEF2(k, L, x, A, v):
     u2_exact = [((cosh(k*x)/cosh(k*L))-1)*(A/k**2)
 -(v/k)*(sinh(k*(L-x))/cosh(k*L)) for x in x[0:-1]]
 #x[0:-1]  I dont need  u(x=L) beacause it is given    
-    return(u2_exact)
-    
-#Calling the Discr. the Interval right here for now     
-x,h = DIF(L,N)   
- 
+    return(u2_exact)    
+
+#Plotting stuff,subplot defined outside of for loop
+#I will do two different figures, each with two subplots.
+#Dirchlet and Neuman on different plots.
+#different k values in the subplots
+#turning on grid and setting up subplots
+#I dont really like how the common x/y labels look so I will do them individually
+plt.rcParams['axes.grid'] = True
+fig1, (ax1, ax2) = plt.subplots(2)
+fig1.suptitle('Part 1 Dirchlet Boundary Conditions')
+fig2, (ax3, ax4) = plt.subplots(2)  
+fig2.suptitle('Part 2 Nuemann Boundary Conditions')
+ax1.title.set_text('k = %s'%(K[0]))
+ax1.set_xlabel('x')
+ax1.set_ylabel('u(x)')
+ax2.title.set_text('k = %s'%(K[1]))
+ax2.set_xlabel('x')
+ax2.set_ylabel('u(x)')
+ax3.title.set_text('k = %s'%(K[0]))
+ax3.set_xlabel('x')
+ax3.set_ylabel('u(x)')
+ax4.title.set_text('k = %s'%(K[1]))
+ax4.set_xlabel('x')
+ax4.set_ylabel('u(x)')
+
+
 #Outter for loop for the different k values
+
+#Difference between N and 2N variable
+#this doesnt need to be inside loop
+#changing this number right changes my results
+Diff_N2N = 1*10**-3
+
+#Calling the Discr. the Interval right now, right before the k outter for loop
+#actually no I call it inside the loop I dont need it outside the way i have things written
+#right now
+#x,h = DIF(L,N)   
+
 lenK = len(K)
 for n in range(lenK):
-    N = N_initial
     k = K[n]
-    print('For k = %s \n'%(k))
+    N = N_initial
+    print('\nFor k = %s \n'%(k))
+    if n==1:
+        Diff_N2N = 1*10**-5
     
 #Note: lamda in the Helmholtz eq defined here
     lamda = -k**2
+    print('lamda = %s'%(lamda))
     
 #Part 1, Dirchlet
     print('Part 1. Dirchlet Boundary Conditions \n')
@@ -146,8 +174,6 @@ for n in range(lenK):
     
 #im using the flag so I dont have to call the function before and inside the while statement
     Flag = 0
-#Difference between N and 2N variable
-    Diff_N2N = 1*10**-3
     
     while Flag == 0:
 #comparing values near the middle of the interval now
@@ -165,26 +191,30 @@ for n in range(lenK):
         if abs(u_appx[check_val]-u_appx_next[2*check_val+1])<Diff_N2N:
             Flag = 1
             print('%s Grid Points Needed' %(N))
-            print('Doubling the Grid Points would result in less then %s differnce between u values for the closest Grid Point \n' %(Diff_N2N))
+            print('Doubling the Grid Points would result in less than %s differnce between u values for the closest Grid Point \n' %(Diff_N2N))
         else:
-            N = N+N   
-            
-#Note: here is the exact value function calls
-            
+            N = N+N
+#storing N_dirchlet jsut for the legend string. 
+#It is kinda silly I Know I have alot of N values
+#but this way I only one if statment to do all my ploting.
+        N_dirch=N
+#I could just make the legend strings right now actually. Yeah thats better I think
+#ls for legend string        
+        ls1=('Approximate Value with %s gridpoints'%(N))
+        ls2=('Apprixmate Value with %s gridpoints'%(N2))           
+#Note: here are the exact value function calls    
     u_exact = uEF(k, L, x, A, U_o)
     x2, h2 = DIF(L, N2)
     u_exact_next = uEF(k, L, x2, A, U_o)   
     
 #formal order of accuracy.
-    
 #just keeping this quick method for now. G is still just a generic varibale name
     G1 = max([abs((u_appx[j]-u_exact[j])) for j in range(N)]) 
     G2 = max([abs((u_appx_next[j]-u_exact_next[j])) for j in range(2*N)])  
     fooa = round(log2(G1/G2),2)
-    print('log2(Error_N/log(Error_2N)) = %s'%(fooa))
+    print('log2(Error_N/Error_2N) = %s'%(fooa))
     
 #part two, Nuemann
-    
     print('\nPart 2. Neumann Boundary conditions \n')
     #grid convergenvce
     N = N_initial
@@ -192,7 +222,7 @@ for n in range(lenK):
     while Flag == 0:
     
 #comparing values near the middle of the interval now
-        check_val = round(N/2+1)
+        check_val = round(N/2)
 #calling my functions
         x3, h3 = DIF(L,N)  
         u2_appx=NHTAF(N, h3, lamda, v, A)
@@ -200,11 +230,11 @@ for n in range(lenK):
         N2 = 2*N
         h4 = L/(N2+1)
         u2_appx_next = NHTAF(N2, h4, lamda, v, A)
-        # I still need to be comparing u values for the closest x points.  
+        # I still need to be comparing u values for the closest x points. 
         if abs(u2_appx[check_val]-u2_appx_next[2*check_val+1])<Diff_N2N:
             Flag = 1
             print('%s Grid Points Needed' %(N))
-            print('Doubling the Grid Points would result in less then %s differnce between u values for the closest Grid Point \n' %(Diff_N2N))
+            print('Doubling the Grid Points would result in less than %s differnce between u values for the closest Grid Point \n' %(Diff_N2N))
         else:
             N=N+N   
     
@@ -214,15 +244,58 @@ for n in range(lenK):
     u2_exact_next = uEF2(k, L, x4, A, U_o)   
     
 #formal order of accuracy.
-    
 #just keeping this quick method for now. G is still just a generic varibale name
-    G3 = max([abs((u2_appx[j]-u2_exact[j])) for j in range(N-1)]) 
-    G4 = max([abs((u2_appx_next[j]-u2_exact_next[j])) for j in range(2*N-1)])  
+    G3 = max([abs((u2_appx[j]-u2_exact[j])) for j in range(N+1)]) 
+    G4 = max([abs((u2_appx_next[j]-u2_exact_next[j])) for j in range(2*N+1)])  
     fooa2 = round(log2(G3/G4),2)
-    print('log2(Error_N/log(Error_2N)) = %s'%(fooa2))
+    print('log2(Error_N/Error_2N) = %s'%(fooa2))
 
+#plotting, inside the for loop still
+    if n==1:
+        ax1.plot(x2[1:-1], u_exact_next,'k')
+        ax1.plot(x[1:-1], u_appx,'-.r')
+        ax1.plot(x2[1:-1], u_appx_next,':b')
+        ax1.legend(['Exact Value',ls1,ls2])
+        ax3.plot(x4[0:-1], u2_exact_next,'k')
+        ax3.plot(x3[0:-1], u2_appx,'-.r')
+        ax3.plot(x4[0:-1], u2_appx_next,':b')
+        ax3.legend(['Exact Value','Approximate Value with %s gridpoints'%(N),
+'Apprixmate Value with %s gridpoints'%(N2)])
+    else:
+        ax2.plot(x2[1:-1], u_exact_next,'k')
+        ax2.plot(x[1:-1], u_appx,'-.r')
+        ax2.plot(x2[1:-1], u_appx_next,':b') 
+        ax2.legend(['Exact Value',ls1,ls2])
+        ax4.plot(x4[0:-1], u2_exact_next,'k')
+        ax4.plot(x3[0:-1], u2_appx,'-.r')
+        ax4.plot(x4[0:-1], u2_appx_next,':b')
+        ax4.legend(['Exact Value','Approximate Value with %s gridpoints'%(N),
+'Apprixmate Value with %s gridpoints'%(N2)])
 #Now the plotting and tables    
 #This is Now Mon 2.1.
 #also now Im not sure if the K=10 is correct. Anyway i will work on this later today.
 # I mean its doing what is supposed to do its just my values for u2_appx and u2_app_next 
 #are already very close with only 10 grid points
+#idk if this is correct shouldnt the nueman problem be third order accurate and not second order?
+#oh wait a second am I still getting tridiagonal dominance for k=10? yes I still should
+#yes I still have tridiagonal dominance
+#it really depends on what i set
+        
+#unless I have some error somewhere im not seeing. Im already really close to the exact value using just 10 gridpoints for the nueman
+#atleast for k=10        
+
+#after looking at the graphs im not sure the nuemann stuff is working correctly.
+#lets check the inputs
+#ok tables now
+# i could use that pandas stuff
+#import pandas as pd
+#table1 = pd.DataFrame([x[1:-1], u_exact])
+#nah lets just copy and paste in excel
+        
+#"Submit graphs comparing the exact and numerical solutions and also tables including some (only some!)
+#numerical values to permit a better comparison between the two solutions."
+#seems like I can get more accurate without my log2 equation getting negative for k=10. why is this the case        
+#why is error 2N greater than N
+#I would really like to make this code run faster so I could change Diff_N2N  to be really small
+#I could change Diff_N2N to be different for the differnt k values 
+#i kinda like that        
