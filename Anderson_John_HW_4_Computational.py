@@ -14,15 +14,15 @@ Created on Fri Oct  9 14:07:44 2020
 #imports
 import numpy as np
 
-import math
+#import math
 import matplotlib.pyplot as plt
 from math import sinh as sinh
 from math import cosh as cosh
 from math import log2 as log2
-from random import randint as randi
+#from random import randint as randi
 
 #Contstants given in problem statement, constant for both boundary conditions.
-#Interval length, u(x=0), v is constant on hyperbolic sin function, A is exact solution of f(x).
+#Interval length, u(x=0) for Dirchlet, v is constant for the Neumann, A is exact solution of f(x).
 # solve both problem for both values of k
 
 L = 1
@@ -56,7 +56,7 @@ def HTAF(N, h, lamda, U_o, A):
 #inputs are N, lamda, U_o=u(x=0), and for this problem A.
 #Pre Thomas algorith set up. for this problem these values are all constant
 # Note these values are now inside the function
-    a =-(2-lamda*h**2)
+    a = -(2-lamda*h**2)
     b = 1
     c = 1
     # the following line would be changed/removed or I would need a vector f as in input
@@ -79,11 +79,12 @@ def HTAF(N, h, lamda, U_o, A):
     
 #for Neumann    
 def NHTAF(N, h, lamda, v, A):   
-#Pre Thomas algorith set up. for this problem these values are all constant
+#Pre Thomas algorith set up.
 #I now need to make N one point larger to incorporate the ghost node method for
 #u(x=0) whihch is unknown
 #but I am still keep h the same    
-    N=N+1    
+    N = N+1    
+#these values are constant but the c's are not.    
     a =-(2-lamda*h**2)
     b = 1
 #I now need c to be a list because they are now not all the same
@@ -99,7 +100,8 @@ def NHTAF(N, h, lamda, v, A):
     g = [0]*N
     u_appx = [0]*N
 #following the psuedo code
-#zeroth element of this list corresponds to the first subscript in thomas algorith
+#zeroth element of this list does infact correspond to  subscript zero in thomas algorith
+#because of the ghost node method
     alpha[0] = a
     g[0] = rhs_o
     for j in range(1, N):
@@ -110,25 +112,25 @@ def NHTAF(N, h, lamda, v, A):
         u_appx[-1-m] = (g[-1-m]-c[-1-m]*u_appx[-m])/alpha[-1-m]
     return(u_appx)    
 
-#u exact function, for the helmhotlz dirchlet part 1 problem
-       
+#u exact function, for the Helmhotlz Dirchlet part 1 problem     
 def uEF(k, L, x, A, U_o):
     u_exact = [((sinh(k*(L-x))+sinh(k*x))/sinh(k*L)-1)*A/k**2+
 U_o*sinh(k*(L-x))/sinh(k*L) for x in x[1:-1]]
 #x[1:-1] I dont need u(x=0) or u(x=L) beacause they are given
     return(u_exact)
-    
+  
+#u exact function, for the Helmhotlz Neumann Part 2 problem
 def uEF2(k, L, x, A, v):
     u2_exact = [((cosh(k*x)/cosh(k*L))-1)*(A/k**2)
 -(v/k)*(sinh(k*(L-x))/cosh(k*L)) for x in x[0:-1]]
 #x[0:-1]  I dont need  u(x=L) beacause it is given    
     return(u2_exact)
+    
 #Calling the Discr. the Interval right here for now     
 x,h = DIF(L,N)   
  
-
 #Outter for lop for the different k values
-lenK=len(K)
+lenK = len(K)
 for n in range(lenK):
     k = K[n]
 
@@ -140,7 +142,7 @@ for n in range(lenK):
     lamda = -k**2
     
 #Part 1, Dirchlet
-    print('Part 1. Dirchlet Boundary conditions \n')
+    print('Part 1. Dirchlet Boundary Conditions \n')
     
 #Grid Convergence
     
@@ -156,10 +158,10 @@ for n in range(lenK):
 # i shouldnt have this function in the loop
 #im calculating alot xs i dont use, change it later to be more efficeint.
         x, h = DIF(L,N)  
-        u_appx=HTAF(N,h,lamda,U_o,A)
+        u_appx = HTAF(N,h,lamda,U_o,A)
 #I bet I should define these so they are not in the function call.
-        N2=2*N
-        h2=L/(N2+1)
+        N2 = 2*N
+        h2 = L/(N2+1)
         u_appx_next = HTAF(N2,h2,lamda,U_o,A)
 # I still need to be comparing u values for the closest x points.  
         if abs(u_appx[check_val]-u_appx_next[2*check_val+1])<Diff_N2N:
@@ -167,12 +169,12 @@ for n in range(lenK):
             print('%s Grid Points Needed' %(N))
             print('Doubling the Grid Points would result in less then %s differnce between u values for the closest Grid Point \n' %(Diff_N2N))
         else:
-            N=N+N   
+            N = N+N   
             
 #Note: here is the exact value function calls
             
     u_exact = uEF(k, L, x, A, U_o)
-    x2, h2= DIF(L, N2)
+    x2, h2 = DIF(L, N2)
     u_exact_next = uEF(k, L, x2, A, U_o)   
     
 #formal order of accuracy.
@@ -187,7 +189,7 @@ for n in range(lenK):
     
     print('\nPart 2. Neumann Boundary conditions \n')
     #grid convergenvce
-    N=N_initial
+    N = N_initial
     Flag = 0
     while Flag == 0:
     
@@ -197,8 +199,8 @@ for n in range(lenK):
         x, h = DIF(L,N)  
         u2_appx=NHTAF(N, h, lamda, v, A)
         #I bet I should define these so they are not in the function call.
-        N2=2*N
-        h2=L/(N2+1)
+        N2 = 2*N
+        h2 = L/(N2+1)
         u2_appx_next = NHTAF(N2,h2,lamda, v, A)
         # I still need to be comparing u values for the closest x points.  
         if abs(u2_appx[check_val]-u2_appx_next[2*check_val+1])<Diff_N2N:
@@ -209,8 +211,8 @@ for n in range(lenK):
             N=N+N   
     
 #Note: here is the exact value function calls
-    u2_exact= uEF2(k, L, x, A, v)
-    x3, h3= DIF(L, N2)
+    u2_exact = uEF2(k, L, x, A, v)
+    x3, h3 = DIF(L, N2)
     u2_exact_next = uEF2(k, L, x3, A, U_o)   
     
 #formal order of accuracy.
