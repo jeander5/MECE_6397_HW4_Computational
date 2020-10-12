@@ -132,13 +132,11 @@ x,h = DIF(L,N)
 #Outter for loop for the different k values
 lenK = len(K)
 for n in range(lenK):
-    k = K[n]
-
-#just gonna start with k=1 for now
+    N = N_initial
     k = K[n]
     print('For k = %s \n'%(k))
     
-#Note: lamda in the helmholtz eq defined here
+#Note: lamda in the Helmholtz eq defined here
     lamda = -k**2
     
 #Part 1, Dirchlet
@@ -194,14 +192,14 @@ for n in range(lenK):
     while Flag == 0:
     
 #comparing values near the middle of the interval now
-        check_val = round(N/2)
+        check_val = round(N/2+1)
 #calling my functions
-        x, h = DIF(L,N)  
-        u2_appx=NHTAF(N, h, lamda, v, A)
+        x3, h3 = DIF(L,N)  
+        u2_appx=NHTAF(N, h3, lamda, v, A)
         #I bet I should define these so they are not in the function call.
         N2 = 2*N
-        h2 = L/(N2+1)
-        u2_appx_next = NHTAF(N2,h2,lamda, v, A)
+        h4 = L/(N2+1)
+        u2_appx_next = NHTAF(N2, h4, lamda, v, A)
         # I still need to be comparing u values for the closest x points.  
         if abs(u2_appx[check_val]-u2_appx_next[2*check_val+1])<Diff_N2N:
             Flag = 1
@@ -211,9 +209,9 @@ for n in range(lenK):
             N=N+N   
     
 #Note: here is the exact value function calls
-    u2_exact = uEF2(k, L, x, A, v)
-    x3, h3 = DIF(L, N2)
-    u2_exact_next = uEF2(k, L, x3, A, U_o)   
+    u2_exact = uEF2(k, L, x3, A, v)
+    x4, h4 = DIF(L, N2)
+    u2_exact_next = uEF2(k, L, x4, A, U_o)   
     
 #formal order of accuracy.
     
@@ -225,4 +223,6 @@ for n in range(lenK):
 
 #Now the plotting and tables    
 #This is Now Mon 2.1.
-    
+#also now Im not sure if the K=10 is correct. Anyway i will work on this later today.
+# I mean its doing what is supposed to do its just my values for u2_appx and u2_app_next 
+#are already very close with only 10 grid points
