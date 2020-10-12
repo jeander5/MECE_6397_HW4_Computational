@@ -180,12 +180,10 @@ for n in range(lenK):
 #just keeping this quick method for now. G is still just a generic varibale name
     G1 = max([abs((u_appx[j]-u_exact[j])) for j in range(N)]) 
     G2 = max([abs((u_appx_next[j]-u_exact_next[j])) for j in range(2*N)])  
-    fooa = log2(G1/G2)
-    print(fooa)
+    fooa = round(log2(G1/G2),2)
+    print('log2(Error_N/log(Error_2N)) = %s'%(fooa))
     
 #part two, Nuemann
-    
-#This is Now Mon 2.
     
     print('\nPart 2. Neumann Boundary conditions \n')
     #grid convergenvce
@@ -220,5 +218,9 @@ for n in range(lenK):
 #just keeping this quick method for now. G is still just a generic varibale name
     G3 = max([abs((u2_appx[j]-u2_exact[j])) for j in range(N-1)]) 
     G4 = max([abs((u2_appx_next[j]-u2_exact_next[j])) for j in range(2*N-1)])  
-    fooa2 = log2(G3/G4)
-    print(fooa2)
+    fooa2 = round(log2(G3/G4),2)
+    print('log2(Error_N/log(Error_2N)) = %s'%(fooa2))
+
+#Now the plotting and tables    
+#This is Now Mon 2.1.
+    
