@@ -135,7 +135,7 @@ ax4.title.set_text('k = %s'%(K[1]))
 ax4.set_xlabel('x')
 ax4.set_ylabel('u(x)')
 
-#changing this number right changes my results
+#changing this number right here changes my results!
 #Note! Very Important!
 #Difference between N and 2N variable
 Diff_N2N = 1*10**-3
