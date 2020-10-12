@@ -129,13 +129,13 @@ def uEF2(k, L, x, A, v):
 #Calling the Discr. the Interval right here for now     
 x,h = DIF(L,N)   
  
-#Outter for lop for the different k values
+#Outter for loop for the different k values
 lenK = len(K)
 for n in range(lenK):
     k = K[n]
 
 #just gonna start with k=1 for now
-    k = K[0]
+    k = K[n]
     print('For k = %s \n'%(k))
     
 #Note: lamda in the helmholtz eq defined here
