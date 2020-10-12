@@ -7,7 +7,6 @@ Created on Fri Oct  9 14:07:44 2020
 #Okay I am making a new file and will be working from this version from now on using 
 #Github to document all changes.
 
-
 # MECE 6397, SciComp, Problem 4, Computational
 #Solve the helmholtzs equation for 1. Dirchlet. 2. Nuemann
 
@@ -20,7 +19,6 @@ from math import log2 as log2
 
 #Contstants given in problem statement, constant for both boundary conditions.
 #Interval length, u(x=0) for Dirchlet, v is constant for the Neumann, A is exact solution of f(x).
-# solve both problem for both values of k
 
 L = 1
 U_o = 1
@@ -40,8 +38,6 @@ def DIF(L, N):
     h = L/(N+1)
     x = np.linspace(0, L, N+2)
     return(x[:],h)
-#changed this back to how I originally had it because for the Neuman problem I need to 
-#approximate u(x=0)    
 
 #Helmholtz Thomas Algorith Function, for Dirchlet part 1
 def HTAF(N, h, lamda, U_o, A):   
@@ -77,14 +73,14 @@ def NHTAF(N, h, lamda, v, A):
 #but I am still keep h the same    
     N = N+1    
 #these values are constant but the c's are not.    
-    a =-(2-lamda*h**2)
+    a = -(2-lamda*h**2)
     b = 1
 #I now need c to be a list because they are now not all the same
 #or I could use some conditinal statements but I wanna still follow the
 #pseudo code for the algorithm closely    
     c = [1]*N
-    c[0]=2
-    f=A*h**2    
+    c[0] = 2
+    f= A*h**2    
 #this line is added because of the ghost node method
 #right hand side, initial equation    
     rhs_o = A*h**2+2*h*v
@@ -118,12 +114,9 @@ def uEF2(k, L, x, A, v):
 #x[0:-1]  I dont need  u(x=L) beacause it is given    
     return(u2_exact)    
 
-#Plotting stuff,subplot defined outside of for loop
-#I will do two different figures, each with two subplots.
-#Dirchlet and Neuman on different plots.
-#different k values in the subplots
-#turning on grid and setting up subplots
-#I dont really like how the common x/y labels look so I will do them individually
+#Pre-loop Plot formatting
+#turning on grid, and setting up subplots, title, and labels.
+#legends are defined inside the loop     
 plt.rcParams['axes.grid'] = True
 fig1, (ax1, ax2) = plt.subplots(2)
 fig1.suptitle('Part 1 Dirchlet Boundary Conditions')
@@ -142,24 +135,20 @@ ax4.title.set_text('k = %s'%(K[1]))
 ax4.set_xlabel('x')
 ax4.set_ylabel('u(x)')
 
-
-#Outter for loop for the different k values
-
-#Difference between N and 2N variable
-#this doesnt need to be inside loop
 #changing this number right changes my results
+#Note! Very Important!
+#Difference between N and 2N variable
 Diff_N2N = 1*10**-3
 
-#Calling the Discr. the Interval right now, right before the k outter for loop
-#actually no I call it inside the loop I dont need it outside the way i have things written
-#right now
-#x,h = DIF(L,N)   
-
+#Outter for loop for the different k values
 lenK = len(K)
 for n in range(lenK):
     k = K[n]
+#resetting the N value
     N = N_initial
     print('\nFor k = %s \n'%(k))
+    
+#using a different value here for k=10
     if n==1:
         Diff_N2N = 1*10**-5
     
@@ -173,14 +162,12 @@ for n in range(lenK):
 #Grid Convergence
     
 #im using the flag so I dont have to call the function before and inside the while statement
-    Flag = 0
-    
+    Flag = 0 
     while Flag == 0:
 #comparing values near the middle of the interval now
         check_val = round(N/2)
 #calling my functions
-# i shouldnt have this function in the loop
-#im calculating alot xs i dont use, change it later to be more efficeint.
+#im calculating alot xs i dont use, I could/should change it later to be more efficeint.
         x, h = DIF(L,N)  
         u_appx = HTAF(N,h,lamda,U_o,A)
 #I bet I should define these so they are not in the function call.
@@ -194,14 +181,11 @@ for n in range(lenK):
             print('Doubling the Grid Points would result in less than %s differnce between u values for the closest Grid Point \n' %(Diff_N2N))
         else:
             N = N+N
-#storing N_dirchlet jsut for the legend string. 
-#It is kinda silly I Know I have alot of N values
-#but this way I only one if statment to do all my ploting.
-        N_dirch=N
-#I could just make the legend strings right now actually. Yeah thats better I think
+            
 #ls for legend string        
         ls1=('Approximate Value with %s gridpoints'%(N))
-        ls2=('Apprixmate Value with %s gridpoints'%(N2))           
+        ls2=('Apprixmate Value with %s gridpoints'%(N2))  
+         
 #Note: here are the exact value function calls    
     u_exact = uEF(k, L, x, A, U_o)
     x2, h2 = DIF(L, N2)
@@ -238,7 +222,7 @@ for n in range(lenK):
         else:
             N=N+N   
     
-#Note: here is the exact value function calls
+#Note: here are the exact value function calls
     u2_exact = uEF2(k, L, x3, A, v)
     x4, h4 = DIF(L, N2)
     u2_exact_next = uEF2(k, L, x4, A, U_o)   
@@ -271,31 +255,6 @@ for n in range(lenK):
         ax4.plot(x4[0:-1], u2_appx_next,':b')
         ax4.legend(['Exact Value','Approximate Value with %s gridpoints'%(N),
 'Apprixmate Value with %s gridpoints'%(N2)])
-#Now the plotting and tables    
-#This is Now Mon 2.1.
-#also now Im not sure if the K=10 is correct. Anyway i will work on this later today.
-# I mean its doing what is supposed to do its just my values for u2_appx and u2_app_next 
-#are already very close with only 10 grid points
-#idk if this is correct shouldnt the nueman problem be third order accurate and not second order?
-#oh wait a second am I still getting tridiagonal dominance for k=10? yes I still should
-#yes I still have tridiagonal dominance
-#it really depends on what i set
-        
-#unless I have some error somewhere im not seeing. Im already really close to the exact value using just 10 gridpoints for the nueman
-#atleast for k=10        
 
-#after looking at the graphs im not sure the nuemann stuff is working correctly.
-#lets check the inputs
 #ok tables now
-# i could use that pandas stuff
-#import pandas as pd
-#table1 = pd.DataFrame([x[1:-1], u_exact])
-#nah lets just copy and paste in excel
-        
-#"Submit graphs comparing the exact and numerical solutions and also tables including some (only some!)
-#numerical values to permit a better comparison between the two solutions."
-#seems like I can get more accurate without my log2 equation getting negative for k=10. why is this the case        
-#why is error 2N greater than N
-#I would really like to make this code run faster so I could change Diff_N2N  to be really small
-#I could change Diff_N2N to be different for the differnt k values 
-#i kinda like that        
+# I will just copy and paste what I need in excel
