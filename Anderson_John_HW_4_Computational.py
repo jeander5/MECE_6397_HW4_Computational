@@ -8,7 +8,7 @@ Created on Fri Oct  9 14:07:44 2020
 #Github to document all changes.
 
 # MECE 6397, SciComp, Problem 4, Computational
-#Solve the helmholtzs equation for 1. Dirchlet. 2. Nuemann
+#Solve the Helmholtzs equation for 1. Dirchlet. 2. Nuemann
 
 #imports
 import numpy as np
@@ -16,34 +16,24 @@ import matplotlib.pyplot as plt
 from math import sinh as sinh
 from math import cosh as cosh
 from math import log2 as log2
+import time
 
 #Contstants given in problem statement, constant for both boundary conditions.
 #Interval length, u(x=0) for Dirchlet, v is constant for the Neumann, A is exact solution of f(x).
-
 L = 1
 U_o = 1
 v = 1
 A = 1
 K = [1, 10]
 
-#The N value, this is inside the for loop
-#N must be greater than 2
-N = 10
-N_initial = N
-
-#discretize the interval function  
-#this really doesnt need to be a function. I still like having it tho  
-#Discretizing the interval length. This is the same for both problems 
-def DIF(L, N):
-    h = L/(N+1)
-    x = np.linspace(0, L, N+2)
-    return(x[:],h)
+#The N_initial value must be greater than 2. 
+#N is defined in the for lor and changes during the grid convergence study.
+N_initial = 10
 
 #Helmholtz Thomas Algorith Function, for Dirchlet part 1
 def HTAF(N, h, lamda, U_o, A):   
 #inputs are N, lamda, U_o=u(x=0), and for this problem A.
 #Pre Thomas algorith set up. for this problem these values are all constant
-# Note these values are now inside the function
     a = -(2-lamda*h**2)
     b = 1
     c = 1
@@ -65,12 +55,12 @@ def HTAF(N, h, lamda, U_o, A):
         u_appx[-1-m] = (g[-1-m]-c*u_appx[-m])/alpha[-1-m]
     return(u_appx)
     
-#Helmholtz Thomas Algorith Function, for Neuman part 2
+#Helmholtz Thomas Algorith Function, for Neumann part 2
 def NHTAF(N, h, lamda, v, A):   
 #Pre Thomas algorith set up.
 #I now need to make N one point larger to incorporate the ghost node method for
 #u(x=0) whihch is unknown
-#but I am still keep h the same    
+#but I am still keeping h the same    
     N = N+1    
 #these values are constant but the c's are not.    
     a = -(2-lamda*h**2)
@@ -138,37 +128,36 @@ ax4.set_ylabel('u(x)')
 #changing this number right here changes my results!
 #Note! Very Important!
 #Difference between N and 2N variable
-Diff_N2N = 1*10**-3
-
+Diff_N2N = 2*10**-6
+#1*10**-6 takes too long but 2*10**-6 works
 #Outter for loop for the different k values
 lenK = len(K)
 for n in range(lenK):
     k = K[n]
-#resetting the N value
-    N = N_initial
     print('\nFor k = %s \n'%(k))
     
 #using a different value here for k=10
-    if n==1:
-        Diff_N2N = 1*10**-5
+    if n == 1:
+        Diff_N2N = 1*10**-8
     
 #Note: lamda in the Helmholtz eq defined here
     lamda = -k**2
-    print('lamda = %s'%(lamda))
     
 #Part 1, Dirchlet
     print('Part 1. Dirchlet Boundary Conditions \n')
     
 #Grid Convergence
     
+#resetting the N value, im putting it here for now, needs to come before both grid convergenve studies
+    N = N_initial    
 #im using the flag so I dont have to call the function before and inside the while statement
     Flag = 0 
     while Flag == 0:
 #comparing values near the middle of the interval now
         check_val = round(N/2)
 #calling my functions
-#im calculating alot xs i dont use, I could/should change it later to be more efficeint.
-        x, h = DIF(L,N)  
+#changed this here so no I am only storing the xs I need to plot and call the exact function        
+        h = L/(N+1) 
         u_appx = HTAF(N,h,lamda,U_o,A)
 #I bet I should define these so they are not in the function call.
         N2 = 2*N
@@ -186,29 +175,65 @@ for n in range(lenK):
         ls1=('Approximate Value with %s gridpoints'%(N))
         ls2=('Apprixmate Value with %s gridpoints'%(N2))  
          
-#Note: here are the exact value function calls    
+#Note: here are the exact value function calls
+#I dont even really need these h's now    
+    x=np.linspace(0, L, N+2)
     u_exact = uEF(k, L, x, A, U_o)
-    x2, h2 = DIF(L, N2)
+    x2=np.linspace(0, L, N2+2)
     u_exact_next = uEF(k, L, x2, A, U_o)   
     
+    
 #formal order of accuracy.
+    
+    
+#Method One    
 #just keeping this quick method for now. G is still just a generic varibale name
+    start_time1=time.time()
+    print('Start')
     G1 = max([abs((u_appx[j]-u_exact[j])) for j in range(N)]) 
     G2 = max([abs((u_appx_next[j]-u_exact_next[j])) for j in range(2*N)])  
     fooa = round(log2(G1/G2),2)
     print('log2(Error_N/Error_2N) = %s'%(fooa))
-    
+    print("--- %s seconds --" % (time.time()-start_time1))
+
+#Method Two
+    start_time2=time.time()
+    print('Start')    
+    stored_val = (u_appx[0]-u_exact[0])
+    for j in range(1,N):
+        next_val = u_appx[j]-u_exact[j]
+        if next_val>stored_val:
+            stored_val = next_val
+    stored_val2 = (u_appx[0]-u_exact[0])
+    for j in range(1,N*2):
+        next_val2 = u_appx_next[j]-u_exact_next[j]
+        if next_val2>stored_val2:
+            stored_val2=next_val2
+    print("--- %s seconds --" % (time.time()-start_time2))     
+            
+#Method 3
+    start_time3=time.time()
+    print('Start')
+    print("--- %s seconds --" % (time.time()-start_time3))   
+    abs_err_1 = [0]*N
+    abs_err_2 = [0]*N*2
+    for j in range(N):
+        abs_err_1[j] = abs((u_appx[j]-u_exact[j]))
+    for j in range(2*N):
+        abs_err_2[j] = abs((u_appx_next[j]-u_exact_next[j]))
+    max_err_1 = max(abs_err_1)
+    max_err_2 = max(abs_err_2)            
+    print("--- %s seconds --" % (time.time()-start_time3))
 #part two, Nuemann
     print('\nPart 2. Neumann Boundary conditions \n')
     #grid convergenvce
     N = N_initial
     Flag = 0
     while Flag == 0:
-    
 #comparing values near the middle of the interval now
         check_val = round(N/2)
 #calling my functions
-        x3, h3 = DIF(L,N)  
+        h3= L/(N+1)  
         u2_appx=NHTAF(N, h3, lamda, v, A)
         #I bet I should define these so they are not in the function call.
         N2 = 2*N
@@ -223,8 +248,9 @@ for n in range(lenK):
             N=N+N   
     
 #Note: here are the exact value function calls
+    x3=np.linspace(0, L, N+2)        
     u2_exact = uEF2(k, L, x3, A, v)
-    x4, h4 = DIF(L, N2)
+    x4=np.linspace(0, L, N2+2)
     u2_exact_next = uEF2(k, L, x4, A, U_o)   
     
 #formal order of accuracy.
@@ -239,12 +265,12 @@ for n in range(lenK):
         ax1.plot(x2[1:-1], u_exact_next,'k')
         ax1.plot(x[1:-1], u_appx,'-.r')
         ax1.plot(x2[1:-1], u_appx_next,':b')
-        ax1.legend(['Exact Value',ls1,ls2])
+        ax1.legend(['Exact Value',ls1, ls2])
         ax3.plot(x4[0:-1], u2_exact_next,'k')
         ax3.plot(x3[0:-1], u2_appx,'-.r')
         ax3.plot(x4[0:-1], u2_appx_next,':b')
-        ax3.legend(['Exact Value','Approximate Value with %s gridpoints'%(N),
-'Apprixmate Value with %s gridpoints'%(N2)])
+        ax3.legend(['Exact Value','Approximate Value with %s grid points'%(N),
+'Apprixmate Value with %s grid points'%(N2)])
     else:
         ax2.plot(x2[1:-1], u_exact_next,'k')
         ax2.plot(x[1:-1], u_appx,'-.r')
@@ -253,8 +279,22 @@ for n in range(lenK):
         ax4.plot(x4[0:-1], u2_exact_next,'k')
         ax4.plot(x3[0:-1], u2_appx,'-.r')
         ax4.plot(x4[0:-1], u2_appx_next,':b')
-        ax4.legend(['Exact Value','Approximate Value with %s gridpoints'%(N),
-'Apprixmate Value with %s gridpoints'%(N2)])
+        ax4.legend(['Exact Value','Approximate Value with %s grid points'%(N),
+'Apprixmate Value with %s grid points'%(N2)])
 
 #ok tables now
 # I will just copy and paste what I need in excel
+        
+# ok nice it still takes a minute or so but I can get my uppx and my uappx next pretty dang close now.
+#but the errorN<error2N is still happening
+#you know it specifically says to check this AFTER the grid convergence so maybe this iant such a big deal.
+#i still dont know why the 2N appx would be less acurate 
+# also that searching the max error thing is taking awhile, maybe bring back those other methods 
+#i mean its really not that long
+#imagine subdividng a meter one micron at a time. crazy stuff       
+#import time
+#start_time=time.time()
+#print('Start')
+#print("--- %s seconds --" % (time.time()-start_time))
+#I wanna time test those three different methods
+
