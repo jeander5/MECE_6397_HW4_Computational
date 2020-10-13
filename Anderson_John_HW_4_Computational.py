@@ -174,8 +174,8 @@ for n in range(LEN_K):
 
 #ls for legend string. This is here so I dont need to store this N and N2 value.
 #I am storing the string instead
-        ls1 = ('Approximate Value with %s grid points'%(N))
-        ls2 = ('Approximate Value with %s grid points'%(N2))
+        ls1 = ('Approximate values with %s grid points'%(N))
+        ls2 = ('Approximate values with %s grid points'%(N2))
 
 #Note: here are the exact value function calls. x values are also defined here
     x1 = np.linspace(0, L, N+2)
@@ -256,21 +256,21 @@ for n in range(LEN_K):
         ax1.plot(x2[1:-1], u_exact_next, 'k')
         ax1.plot(x1[1:-1], u_appx, '-.r')
         ax1.plot(x2[1:-1], u_appx_next, ':b')
-        ax1.legend(['Exact Value', ls1, ls2])
+        ax1.legend(['Exact values', ls1, ls2])
         ax3.plot(x4[0:-1], u2_exact_next, 'k')
         ax3.plot(x3[0:-1], u2_appx, '-.r')
         ax3.plot(x4[0:-1], u2_appx_next, ':b')
-        ax3.legend(['Exact Value', 'Approximate Value with %s grid points'%(N),
-                    'Approximate Value with %s grid points'%(N2)])
+        ax3.legend(['Exact values', 'Approximate values with %s grid points'%(N),
+                    'Approximate values with %s grid points'%(N2)])
 #k==10 plots
     else:
         ax2.plot(x2[1:-1], u_exact_next, 'k')
         ax2.plot(x1[1:-1], u_appx, '-.r')
         ax2.plot(x2[1:-1], u_appx_next, ':b')
-        ax2.legend(['Exact Value', ls1, ls2])
+        ax2.legend(['Exact values', ls1, ls2])
         ax4.plot(x4[0:-1], u2_exact_next, 'k')
         ax4.plot(x3[0:-1], u2_appx, '-.r')
         ax4.plot(x4[0:-1], u2_appx_next, ':b')
-        ax4.legend(['Exact Value', 'Approximate Value with %s grid points'%(N),
-                    'Approximate Value with %s grid points'%(N2)])
+        ax4.legend(['Exact values', 'Approximate values with %s grid points'%(N),
+                    'Approximate values with %s grid points'%(N2)])
         
