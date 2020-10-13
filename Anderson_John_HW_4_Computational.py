@@ -175,7 +175,7 @@ for n in range(LEN_K):
 #ls for legend string. This is here so I dont need to store this N and N2 value.
 #I am storing the string instead
         ls1 = ('Approximate Value with %s grid points'%(N))
-        ls2 = ('Apprixmate Value with %s grid points'%(N2))
+        ls2 = ('Approximate Value with %s grid points'%(N2))
 
 #Note: here are the exact value function calls. x values are also defined here
     x1 = np.linspace(0, L, N+2)
@@ -261,7 +261,7 @@ for n in range(LEN_K):
         ax3.plot(x3[0:-1], u2_appx, '-.r')
         ax3.plot(x4[0:-1], u2_appx_next, ':b')
         ax3.legend(['Exact Value', 'Approximate Value with %s grid points'%(N),
-                    'Apprixmate Value with %s grid points'%(N2)])
+                    'Approximate Value with %s grid points'%(N2)])
 #k==10 plots
     else:
         ax2.plot(x2[1:-1], u_exact_next, 'k')
@@ -272,5 +272,5 @@ for n in range(LEN_K):
         ax4.plot(x3[0:-1], u2_appx, '-.r')
         ax4.plot(x4[0:-1], u2_appx_next, ':b')
         ax4.legend(['Exact Value', 'Approximate Value with %s grid points'%(N),
-                    'Apprixmate Value with %s grid points'%(N2)])
+                    'Approximate Value with %s grid points'%(N2)])
         
