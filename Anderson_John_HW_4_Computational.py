@@ -4,10 +4,8 @@ Created on Fri Oct  9 14:07:44 2020
 @author: johna
 """
 #https://github.com/jeander5/MECE_6397_HW4_Computational
-#Okay I am making a new file and will be working from this version from now on using
-#Github to document all changes.
 # MECE 6397, SciComp, Problem 4, Computational
-#Solve the Helmholtzs equation for 1. Dirchlet. 2. Nuemann
+#Solve the Helmholtz's equation for 1. Dirchlet. 2. Neumann
 
 #imports
 from math import sinh as sinh
@@ -16,7 +14,7 @@ from math import log2 as log2
 import numpy as np
 import matplotlib.pyplot as plt
 
-#Contstants given in problem statement, constant for both boundary conditions
+#Constants given in problem statement, constant for both boundary conditions
 #Interval length, u(x=0) for Dirchlet, v is constant for the Neumann, A is exact solution of f(x)
 L = 1
 U_0 = 1
@@ -32,17 +30,17 @@ N_INITIAL = 10
 def thomas_alg_one(N, h, lamda, U_0, A):
     """returns exact u values for the function from Part 1"""
 #inputs are N, lamda, U_0=u(x=0), and for this problem A.
-#Pre Thomas algorithm set up. for this problem these values are all constant
+#Pre Thomas Algorithm set up. for this problem these values are all constant
     a = -(2-lamda*h**2)
     b = 1
     c = 1
-#Right hand side, the f*h**2 from the psuedocode
+#Right hand side, the f*h**2 from the pseudocode
     rhs = A*h**2
     alpha = [0]*N
     g = [0]*N
     u_appx = [0]*N
-#Following the psuedocode
-#Zeroth element of this list corresponds to the first subscript in thomas algorithm
+#Following the pseudocode
+#Zeroth element of this list corresponds to the first subscript in Thomas Algorithm
     alpha[0] = a
     g[0] = rhs-U_0
     for j in range(1, N):
@@ -56,7 +54,7 @@ def thomas_alg_one(N, h, lamda, U_0, A):
 #Helmholtz Thomas Algorithm Function, for Neumann part 2
 def thomas_alg_two(N, h, lamda, v, A):
     """returns approximate u values for the function from Part 2"""
-#Pre Thomas algorithm set up.
+#Pre Thomas Algorithm set up.
 #I now need to make N one point larger to incorporate the ghost node method for
 #u(x=0) which is unknown. But I am still keeping h the same
     N = N+1
@@ -75,7 +73,7 @@ def thomas_alg_two(N, h, lamda, v, A):
     g = [0]*N
     u_appx = [0]*N
 #Following the psuedo code
-#Zeroth element of this list does infact correspond to  subscript zero in thomas algorith
+#Zeroth element of this list does in fact correspond to  subscript zero in Thomas Algorithm
 #Because of the ghost node method
     alpha[0] = a
     g[0] = rhs+2*h*v
@@ -92,7 +90,7 @@ def u_exact_func(k, L, x, A, U_0):
     """returns exact u values for the function from Part1"""
     func_vals = [((sinh(k*(L-x))+sinh(k*x))/sinh(k*L)-1)*A/k**2+
                  U_0*sinh(k*(L-x))/sinh(k*L) for x in x[1:-1]]
-#x[1:-1] I dont need u(x=0) or u(x=L) beacause they are given
+#x[1:-1] I dont need u(x=0) or u(x=L) because they are given
     return func_vals
 
 #u exact function, for the Helmhotlz Neumann Part 2 problem
@@ -100,7 +98,7 @@ def u_exact_func2(k, L, x, A, v):
     """returns exact u values for the function from Part 2"""
     func_vals = [((cosh(k*x)/cosh(k*L))-1)*(A/k**2)
                  -(v/k)*(sinh(k*(L-x))/cosh(k*L)) for x in x[0:-1]]
-#x[0:-1]  I dont need  u(x=L) beacause it is given
+#x[0:-1]  I dont need  u(x=L) because it is given
     return func_vals
 
 #Pre-loop Plot formatting
@@ -131,7 +129,7 @@ CLOSE_ENOUGH = 1*10**-3
 #This is really the number the controls the grid convergence study
 #As in "how close is close enough?"
 
-#Outter for loop for the different k values
+#Outer for loop for the different k values
 LEN_K = len(K)
 for n in range(LEN_K):
     k = K[n]
@@ -149,7 +147,7 @@ for n in range(LEN_K):
 
 #Grid Convergence Study
 
-#Resetting the N value. Needs to come before both grid convergenve studies
+#Resetting the N value. Needs to come before both grid convergence studies
     N = N_INITIAL
 #I am using the Flag so I dont have to call the function before and inside the while statement
     Flag = 0
@@ -165,9 +163,9 @@ for n in range(LEN_K):
 #I still need to be comparing u values for the closest x points, hence 2*check_val+1
         if abs(u_appx[check_val]-u_appx_next[2*check_val+1]) < CLOSE_ENOUGH:
             Flag = 1
-            print('%s Grid Points Needed' %(N))
-            print('Doubling the Grid Points would result in less than %s '
-                  'differnce between u values for the closest grid points \n'
+            print('%s grid points needed' %(N))
+            print('Doubling the grid points would result in less than %s '
+                  'difference between u values for the closest grid points \n'
                   %(CLOSE_ENOUGH))
         else:
             N = N+N
@@ -219,9 +217,9 @@ for n in range(LEN_K):
 # I still need to be comparing u values for the closest x points, hence 2*check_val+1
         if abs(u2_appx[check_val]-u2_appx_next[2*check_val+1]) < CLOSE_ENOUGH:
             Flag = 1
-            print('%s Grid Points Needed' %(N))
-            print('Doubling the Grid Points would result in less than %s '
-                  'differnce between u values for the closest grid points \n'
+            print('%s grid points needed' %(N))
+            print('Doubling the grid points would result in less than %s '
+                  'difference between u values for the closest grid points \n'
                   %(CLOSE_ENOUGH))
         else:
             N = N+N
