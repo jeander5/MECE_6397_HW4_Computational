@@ -126,8 +126,8 @@ ax4.set_ylabel('u(x)')
 
 #Changing this number right here changes my results!
 #Note! Very Important!
-#Difference between N and 2N apprixmation
-CLOSE_ENOUGH = 6.33*10**-4
+#Difference between N and 2N approximation
+CLOSE_ENOUGH = 1*10**-3
 #This is really the number the controls the grid convergence study
 #As in "how close is close enough?"
 
@@ -139,7 +139,7 @@ for n in range(LEN_K):
 
 #Using a different value here for k=10
     if n == 1:
-        CLOSE_ENOUGH = 1.65*10**-6
+        CLOSE_ENOUGH = 1*10**-5
 
 #Note: lamda in the Helmholtz equation is defined here
     lamda = -k**2
@@ -173,7 +173,7 @@ for n in range(LEN_K):
             N = N+N
 
 #ls for legend string. This is here so I dont need to store this N and N2 value.
-#I am storing the strin instead
+#I am storing the string instead
         ls1 = ('Approximate Value with %s grid points'%(N))
         ls2 = ('Apprixmate Value with %s grid points'%(N2))
 
@@ -185,7 +185,7 @@ for n in range(LEN_K):
 
 #formal order of accuracy, fooa
 
-#Finding max absolute error, this method proved to be the faster than others
+#Finding max absolute error, this method proved to be faster than others
     stored_val = (u_appx[0]-u_exact[0])
     for j in range(1, N):
         next_val = u_appx[j]-u_exact[j]
@@ -234,7 +234,7 @@ for n in range(LEN_K):
 
 #formal order of accuracy, fooa
 
-#Finding max absolute error, this method proved to be the faster than others
+#Finding max absolute error, this method proved to be faster than others
 
     stored_val3 = (u2_appx[0]-u2_exact[0])
     for j in range(1, N):
