@@ -30,7 +30,7 @@ N_INITIAL = 10
 def thomas_alg_one(N, h, lamda, U_0, A):
     """returns exact u values for the function from Part 1"""
 #inputs are N, lamda, U_0=u(x=0), and for this problem A.
-#Pre Thomas Algorithm set up. for this problem these values are all constant
+#Pre Thomas Algorithm set up. For this problem these values are all constant
     a = -(2-lamda*h**2)
     b = 1
     c = 1
@@ -62,17 +62,17 @@ def thomas_alg_two(N, h, lamda, v, A):
     a = -(2-lamda*h**2)
     b = 1
 #I now need c to be a list because they are now not all the same
-#Or I could use some conditinal statements but I wanna still follow the
+#Or I could use some conditional statements but I want to still follow the
 #Pseudocode for the algorithm closely
     c = [1]*N
     c[0] = 2
 #This line is added because of the ghost node method
-#Right hand side, initial equation
+#rhs is right hand side
     rhs = A*h**2
     alpha = [0]*N
     g = [0]*N
     u_appx = [0]*N
-#Following the psuedo code
+#Following the pseudocode
 #Zeroth element of this list does in fact correspond to  subscript zero in Thomas Algorithm
 #Because of the ghost node method
     alpha[0] = a
@@ -101,8 +101,8 @@ def u_exact_func2(k, L, x, A, v):
 #x[0:-1]  I dont need  u(x=L) because it is given
     return func_vals
 
-#Pre-loop Plot formatting
-#Turning on grid, and setting up subplots, titles, and labels.=
+#Pre-loop plot formatting
+#Turning on grid, and setting up subplots, titles, and labels
 #Legends are defined inside the for loop
 plt.rcParams['axes.grid'] = True
 fig1, (ax1, ax2) = plt.subplots(2)
@@ -170,7 +170,7 @@ for n in range(LEN_K):
         else:
             N = N+N
 
-#ls for legend string. This is here so I dont need to store this N and N2 value.
+#ls for legend string. This is here so I dont need to store the N and N2 value.
 #I am storing the string instead
         ls1 = ('Approximate values with %s grid points'%(N))
         ls2 = ('Approximate values with %s grid points'%(N2))
